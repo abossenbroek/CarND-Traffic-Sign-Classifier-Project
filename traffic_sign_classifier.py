@@ -1,12 +1,13 @@
 # Load pickled data
-import pickle
-import numpy as np
-import cv2
 import tensorflow as tf
 import tflearn
 from tflearn.data_utils import to_categorical
+
 from sklearn.model_selection import train_test_split
 from skimage import img_as_float
+import pickle
+import numpy as np
+import cv2
 
 training_file = 'train.p'
 testing_file = 'test.p'
