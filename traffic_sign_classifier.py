@@ -5,6 +5,8 @@ import cv2
 import tensorflow as tf
 import tflearn
 from tflearn.data_utils import to_categorical
+from sklearn.model_selection import train_test_split
+from skimage import img_as_float
 
 training_file = 'train.p'
 testing_file = 'test.p'
@@ -39,47 +41,47 @@ print("Number of classes =", n_classes)
 def normalize_illumination(img):
     lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
     l, a, b = cv2.split(lab)
-
     #-----Applying CLAHE to L-channel-------------------------------------------
     clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8,8))
     cl = clahe.apply(l)
-
     #-----Merge the CLAHE enhanced L-channel with the a and b channel-----------
     limg = cv2.merge((cl,a,b))
-
     #-----Converting image from LAB Color model to RGB model--------------------
     final = cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
-
     return(final)
 
-X_train_clahe = np.copy(X_train)
+X_train_clahe = np.empty(X_train.shape)
 for i in range(len(X_train)):
     X_train_clahe[i] = normalize_illumination(X_train[i])
 
-X_test_clahe = np.copy(X_test)
+X_test_clahe = np.empty(X_test.shape)
 for i in range(len(X_test)):
     X_test_clahe[i] = normalize_illumination(X_test[i])
 
+# Convert image to float.
+X_float = np.empty(X_train.shape)
+for i in range(len(X_train_clahe)):
+    #X_float[i] = img_as_float(X_train_clahe[i].astype(np.uint8))
+    X_float[i] = img_as_float(X_train[i].astype(np.uint8))
 
-# Shuffle data
-from sklearn.utils import shuffle
-from sklearn.model_selection import train_test_split
-
-#X_train_clahe, y_train = shuffle(X_train_clahe, y_train)
-#X_train_clahe, y_train = shuffle(X_train, y_train)
 
 # TODO: change to stratisfied sampler to ensure that
-X_train_clahe, X_validation_clahe, y_train, y_validation = train_test_split(X_train,
+X_input, X_validation_clahe, y_train, y_validation = train_test_split(X_float,
                                                                             y_train,
                                                                             test_size=0.2,
                                                                             random_state=42,
                                                                             stratify=y_train)
 
+img_prep = tflearn.ImagePreprocessing()
+img_prep.add_image_normalization()
+img_prep.add_featurewise_zero_center(per_channel=True)
+img_prep.add_featurewise_stdnorm(per_channel=True)
 
 y_train = to_categorical(y_train, n_classes)
 y_test = to_categorical(y_test, n_classes)
 
-network = tflearn.input_data(shape=[None, image_shape, image_shape, 3])
+network = tflearn.input_data(shape=[None, image_shape, image_shape, 3],
+                             data_preprocessing=img_prep)
 
 network = tflearn.conv_2d(network, 32, 3, activation='relu')
 network = tflearn.max_pool_2d(network, 2)
@@ -96,6 +98,6 @@ network = tflearn.regression(network, optimizer='adam',
 # Train using classifier
 model = tflearn.DNN(network, tensorboard_verbose=2,tensorboard_dir='/tmp/tflearn_logs/')
 
-model.fit(X_train_clahe, y_train, n_epoch=50, shuffle=True,
+model.fit(X_input, y_train, n_epoch=50, shuffle=True,
           validation_set=(X_test_clahe, y_test),
-          show_metric=True, batch_size=120, run_id='traffic_cnn')
+          show_metric=True, batch_size=240, run_id='traffic_cnn')
