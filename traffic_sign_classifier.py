@@ -61,27 +61,35 @@ for i in range(len(X_test)):
 # Convert image to float.
 X_float = np.empty(X_train.shape)
 for i in range(len(X_train_clahe)):
-    #X_float[i] = img_as_float(X_train_clahe[i].astype(np.uint8))
-    X_float[i] = img_as_float(X_train[i].astype(np.uint8))
+    X_float[i] = img_as_float(X_train_clahe[i].astype(np.uint8))
 
+mean_correction = list()
+std_correction = list()
+for ch in range(3):
+    mean_correction.insert(ch, X_float[..., ch].mean())
+    std_correction.insert(ch, X_float[..., ch].std())
+
+# We see that the data is much less centered after applying CLAHE. We will recenter the data
+# since CNN are very sensitive to data that is not centered.
+X_norm = np.empty(X_float.shape)
+X_test_norm = np.empty(X_test_clahe.shape)
+for ch in range(3):
+    X_norm[..., ch] = (X_float[..., ch] - mean_correction[ch])/ (std_correction[ch] + 1e-8)
+    X_test_norm[..., ch] = ((img_as_float(X_test_clahe[..., ch].astype(np.uint8)) - mean_correction[ch]) /
+                            (std_correction[ch] + 1e-8))
 
 # TODO: change to stratisfied sampler to ensure that
-X_input, X_validation_clahe, y_train, y_validation = train_test_split(X_float,
-                                                                            y_train,
-                                                                            test_size=0.2,
-                                                                            random_state=42,
-                                                                            stratify=y_train)
-
-img_prep = tflearn.ImagePreprocessing()
-img_prep.add_image_normalization()
-img_prep.add_featurewise_zero_center(per_channel=True)
-img_prep.add_featurewise_stdnorm(per_channel=True)
+X_input, X_validation_clahe, y_train, y_validation = train_test_split(X_norm,
+                                                                      y_train,
+                                                                      test_size=0.2,
+                                                                      random_state=42,
+                                                                      stratify=y_train)
 
 y_train = to_categorical(y_train, n_classes)
 y_test = to_categorical(y_test, n_classes)
 
-network = tflearn.input_data(shape=[None, image_shape, image_shape, 3],
-                             data_preprocessing=img_prep)
+network = tflearn.input_data(shape=[None, image_shape, image_shape, 3])#,
+#                             data_preprocessing=img_prep)
 
 network = tflearn.conv_2d(network, 32, 3, activation='relu')
 network = tflearn.max_pool_2d(network, 2)
@@ -99,5 +107,5 @@ network = tflearn.regression(network, optimizer='adam',
 model = tflearn.DNN(network, tensorboard_verbose=2,tensorboard_dir='/tmp/tflearn_logs/')
 
 model.fit(X_input, y_train, n_epoch=50, shuffle=True,
-          validation_set=(X_test_clahe, y_test),
+          validation_set=(X_test_norm, y_test),
           show_metric=True, batch_size=240, run_id='traffic_cnn')
