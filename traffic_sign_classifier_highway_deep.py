@@ -126,5 +126,5 @@ print("About to start 🤖  learning")
 
 model.fit(X_input, y_train, n_epoch=75, shuffle=True,
           validation_set=(X_test_norm, y_test),
-          show_metric=True, batch_size=200, run_id='traffic_highway_deep')
+          show_metric=True, batch_size=500, run_id='traffic_highway_deep')
 model.save('models/traffic_highway_deep.tflearn')
