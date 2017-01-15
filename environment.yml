@@ -8,5 +8,8 @@ dependencies:
 - scikit-learn
 - pandas
 - menpo::opencv3
+- scikit-image
 - pip:
   - tensorflow >= 0.12.0rc1
+  - tflearn
+
