@@ -110,3 +110,4 @@ model = tflearn.DNN(network, tensorboard_verbose=2,tensorboard_dir='/tmp/tflearn
 model.fit(X_input, y_train, n_epoch=50, shuffle=True,
           validation_set=(X_test_norm, y_test),
           show_metric=True, batch_size=240, run_id='traffic_cnn')
+model.save('models/traffic_cnn.tflearn')
