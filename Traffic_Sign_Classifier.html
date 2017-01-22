@@ -25658,8 +25658,9 @@ E67989D/sfUypOwOGHAIcViDewMGHGoMhj9gwCHEYPgDBhxCDIY/YMAhxGD4AwYcQgyGP2DAIcRg
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>Answer:</strong> For the preparation of the input I looked a the orginal paper and researched the internet. In the original paper the authors discuss normalizing the contrast of the image. With some more research I found Contrast Limited Adaptive Histogram Equalization (CLAHE). I ran both methods for three random signs. Based on the output of both methods it seems that CLAHE is better at accentuating the features of the traffic signs. As a result I chose that method. I tried to add a Gaussian blur to prevent having too pixelated features in the images but this causes a significant deterioration of the image. As a result I prefer to keep the CLAHE images.</p>
-<p>After the CLAHE normalization I normalized the mean and standard deviation of the data set. The final images do not make sense for humans but I found through testing that the accuracy of the CNN improved by applying this.</p>
+<p><strong>Answer:</strong></p>
+<h4 id="Preparation">Preparation<a class="anchor-link" href="#Preparation">&#182;</a></h4><h5 id="CLAHE">CLAHE<a class="anchor-link" href="#CLAHE">&#182;</a></h5><p>For the preparation of the input I looked a the orginal paper and researched the internet. In the original paper the authors discuss normalizing the contrast of the image. With some more research I found Contrast Limited Adaptive Histogram Equalization (CLAHE). I tried the contrast normalization as well as CLAHE on three random signs to see how each preprocessing step impacted the images. Based on the output of both methods it seems that CLAHE is better at accentuating the features of the traffic signs. As a result I chose that method. I tried to add a Gaussian blur to prevent having too pixelated features in the images but this causes a significant deterioration of the image. As a result I prefer to keep the CLAHE images.</p>
+<h5 id="Standard-deviation-normalization-and-centering">Standard deviation normalization and centering<a class="anchor-link" href="#Standard-deviation-normalization-and-centering">&#182;</a></h5><p>After the CLAHE normalization I centered the mean and standardized the standard deviation of the data set. The final images do not make sense for humans but I found through testing that the accuracy of the CNN improved by applying this. I applied these methods to the three pictures that I showed in my first step. The result can be seen above.</p>
 
 </div>
 </div>
@@ -25892,7 +25893,8 @@ RU5ErkJggg==
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>Answer:</strong> First, we shuffle the data set to ensure that the order does not impact the training. Secondly, we hold out twenty percent of the training set for validation purposes. We do not take a fully random sample but instead we take a stratified sample since, as we can see from the histogram, the type of traffic signs are not equally distributed. This could cause a high error in the accuracy.</p>
+<p><strong>Answer:</strong></p>
+<h4 id="Sampling">Sampling<a class="anchor-link" href="#Sampling">&#182;</a></h4><p>To decide how to sample the data I plot a histogram of the distribution of the data, as can be seen above. From the distribution I see that the pictures are not equally distributed over all the categories. For that reason it is important to perform stratisfied sampling. In addition it is important to shuffle the data to ensure that the order of the data does not affect the performance of the CNN.</p>
 
 </div>
 </div>
@@ -26298,7 +26300,7 @@ Validation samples: 12630
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Our initial CNN is 8 layers deep and each layer had a depth of at most 64. The performance of that CNN was about 96% on the validation set. Our single column of a MDNN is 10 layers deep and has a depth of maximum 300. Although the training takes much more time the accuracy remains around 96%. This shows us that increase the depth of a layer does not directly lead to a higher performance. Next we will explore wether creating a very deep CNN will increase the performance. For this we will use a <a href="https://arxiv.org/pdf/1507.06228v2.pdf">highway network</a> initially proposed in <a href="https://arxiv.org/pdf/1505.00387v2.pdf">this paper</a>.</p>
+<h4 id="Steps-to-Highway-model">Steps to Highway model<a class="anchor-link" href="#Steps-to-Highway-model">&#182;</a></h4><p>Our initial CNN is 8 layers deep and each layer had a depth of at most 64. The performance of that CNN was about 96% on the validation set. Our single column of a MDNN is 10 layers deep and has a depth of maximum 300. Although the training takes much more time the accuracy remains around 96%. This shows us that increase the depth of a layer does not directly lead to a higher performance. Next we will explore wether creating a very deep CNN will increase the performance. For this we will use a <a href="https://arxiv.org/pdf/1507.06228v2.pdf">highway network</a> initially proposed in <a href="https://arxiv.org/pdf/1505.00387v2.pdf">this paper</a>.</p>
 <p>The benefit of a highway network is that it permits to train very deep networks efficiently. Using tensorboard we visualize a highway layer from the code below. The graphical representation is as follows:</p>
 <p><img src="img/highway_layer.png" alt="highway layer"></p>
 <p>Mathematically we can describe our highway layer as follows,
@@ -28066,11 +28068,12 @@ For image new_traffic_signs/IMG_0047.png the prediction is [12]
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Answer:</strong></p>
+<h4 id="French-Traffic-Sign-Predictions">French Traffic Sign Predictions<a class="anchor-link" href="#French-Traffic-Sign-Predictions">&#182;</a></h4><p>I ran the best CNN on six French traffic signs. The result of each traffic sign are explained in the table below.</p>
 <table>
 <thead><tr>
 <th style="text-align:left">Traffic sign</th>
-<th style="text-align:left">prediction</th>
-<th style="text-align:right">meaning</th>
+<th style="text-align:left">Prediction</th>
+<th style="text-align:right">Meaning</th>
 <th style="text-align:right">Real meaning</th>
 </tr>
 </thead>
@@ -28114,13 +28117,14 @@ For image new_traffic_signs/IMG_0047.png the prediction is [12]
 </tbody>
 </table>
 <p>Overall my best neural network works pretty bad on French traffic signs, the accuracy is zero percent. One added complexity seems to be that traffic signs are stacked. Moreover, traffic signs exist in France that do not exist in Germany, where the data set originated. Lastly, traffic signs are covered with stickers and graffiti as well as bended making it harder for the algorithm to recognize them.</p>
+<h4 id="Summary">Summary<a class="anchor-link" href="#Summary">&#182;</a></h4><p>Summarizing, the model performs poorly on the set of French traffic signs that I photographed. It classified <em>zero percent</em> accurately whereas it classified <em>99.81 percent</em> accurately on the test data set. I believe that for this reason the model is not usable in France. It would be interesting to see if we coudl apply transfer learning to improve the performance on French traffic signs.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[66]:</div>
+<div class="prompt input_prompt">In&nbsp;[72]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### Visualize the softmax probabilities here.</span>
