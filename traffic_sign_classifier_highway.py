@@ -91,11 +91,9 @@ y_test = to_categorical(y_test, n_classes)
 
 network = tflearn.input_data(shape=[None, image_shape, image_shape, 3])
 
-# Create 20 layers of depth 32 where every layer consists of three highway
-# layers a maxpool and a normalization.
-for i in range(20):
+for i in range(3):
     for j in [3, 2, 1]:
-        network = tflearn.highway_conv_2d(network, 32, j, activation='relu')
+        network = tflearn.highway_conv_2d(network, 16, j, activation='relu')
     network = tflearn.max_pool_2d(network, 2)
     network = tflearn.batch_normalization(network)
 
@@ -118,13 +116,11 @@ network = tflearn.fully_connected(network, n_classes, activation='softmax')
 #   in the categorization task.
 network = tflearn.regression(network, optimizer='adam',
                      loss='categorical_crossentropy',
-                     learning_rate=0.001)
+                     learning_rate=0.005)
 # Train using classifier
 model = tflearn.DNN(network, tensorboard_verbose=2,tensorboard_dir='/tmp/tflearn_logs/')
 
-print("About to start 🤖  learning")
-
-model.fit(X_input, y_train, n_epoch=200, shuffle=True,
+model.fit(X_input, y_train, n_epoch=50, shuffle=True,
           validation_set=(X_test_norm, y_test),
-          show_metric=True, batch_size=500, run_id='traffic_highway_deep')
-model.save('models/traffic_highway_deep.tflearn')
+          show_metric=True, batch_size=100, run_id='traffic_highway')
+model.save('models/taffic_highway.tflearn')
